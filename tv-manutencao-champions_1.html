@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manutenção Champions — TV PCM</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0D1229}
+
+body{
+  font-family:'Rajdhani',sans-serif;
+  background:#0D1229;
+  color:#fff;
+}
+
+/* BG */
+.bg{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 5% 10%, rgba(10,31,92,0.9) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 95% 90%, rgba(232,0,28,0.18) 0%, transparent 50%),
+    repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(255,255,255,0.012) 80px,rgba(255,255,255,0.012) 81px),
+    repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(255,255,255,0.012) 80px,rgba(255,255,255,0.012) 81px);
+}
+
+/* LAYOUT */
+.wrap{position:relative;z-index:1;width:100vw;height:100vh;display:flex;flex-direction:column;}
+
+/* HEADER */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 48px;
+  border-bottom:3px solid #E8001C;
+  background:rgba(10,31,92,0.97);
+  flex-shrink:0;
+}
+.hdr-logo{display:flex;align-items:center;gap:16px;}
+.hdr-logo .xi{
+  width:46px;height:46px;background:#E8001C;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:900;
+  box-shadow:0 0 20px rgba(232,0,28,0.5);
+}
+.hdr-logo h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:32px;letter-spacing:4px;
+}
+.hdr-logo h1 em{color:#E8001C;font-style:normal;}
+.hdr-sub{font-size:13px;color:#8A94B0;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+
+.hdr-right{text-align:right;}
+.hdr-time{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;color:#fff;line-height:1;}
+.hdr-date{font-size:13px;color:#8A94B0;letter-spacing:1px;margin-top:2px;}
+
+/* SLIDE INDICATOR */
+.slide-bar{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:14px 0 10px;
+  flex-shrink:0;
+}
+.slide-dot{
+  width:36px;height:5px;border-radius:3px;
+  background:rgba(255,255,255,0.15);
+  transition:all .4s;
+}
+.slide-dot.active{background:#E8001C;width:60px;}
+
+/* SLIDE TITLE */
+.slide-label{
+  text-align:center;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:6px;
+  color:#8A94B0;
+  padding-bottom:6px;
+  flex-shrink:0;
+}
+.slide-label em{color:#E8001C;font-style:normal;}
+
+/* MAIN AREA */
+.main{flex:1;display:flex;align-items:stretch;padding:0 48px 28px;gap:32px;overflow:hidden;}
+
+/* SLIDE panels */
+.slide{display:none;width:100%;flex-direction:column;align-items:center;justify-content:center;}
+.slide.active{display:flex;}
+
+/* PODIUM */
+.podium-wrap{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:28px;width:100%;flex:1;
+  padding:20px 0 10px;
+}
+.pod{display:flex;flex-direction:column;align-items:center;gap:10px;}
+
+.pod-avatar{
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-weight:900;
+  position:relative;
+}
+.pod-avatar.g1{width:120px;height:120px;font-size:42px;border:4px solid #FFD700;background:rgba(255,215,0,0.15);color:#FFD700;box-shadow:0 0 40px rgba(255,215,0,0.3);}
+.pod-avatar.g2{width:96px;height:96px;font-size:34px;border:3px solid #C0C8D8;background:rgba(192,200,216,0.12);color:#C0C8D8;box-shadow:0 0 24px rgba(192,200,216,0.2);}
+.pod-avatar.g3{width:80px;height:80px;font-size:28px;border:3px solid #CD7F32;background:rgba(205,127,50,0.12);color:#CD7F32;box-shadow:0 0 20px rgba(205,127,50,0.2);}
+
+.pod-crown{position:absolute;top:-22px;font-size:26px;}
+
+.pod-name{
+  font-family:'Bebas Neue',sans-serif;letter-spacing:2px;text-align:center;
+}
+.pod-name.g1{font-size:28px;color:#fff;}
+.pod-name.g2{font-size:22px;color:#fff;}
+.pod-name.g3{font-size:20px;color:#fff;}
+
+.pod-pts{font-family:monospace;font-weight:700;color:#8A94B0;letter-spacing:1px;}
+.pod-pts.g1{font-size:22px;}
+.pod-pts.g2{font-size:18px;}
+.pod-pts.g3{font-size:16px;}
+
+.pod-bar{
+  border-radius:10px 10px 0 0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-weight:900;
+  position:relative;
+}
+.pod-bar.g1{
+  width:180px;height:200px;font-size:80px;color:#FFD700;
+  background:linear-gradient(180deg,rgba(255,215,0,0.25) 0%,rgba(255,215,0,0.05) 100%);
+  border:2px solid rgba(255,215,0,0.4);
+  box-shadow:inset 0 0 40px rgba(255,215,0,0.1);
+}
+.pod-bar.g2{
+  width:150px;height:155px;font-size:64px;color:#C0C8D8;
+  background:linear-gradient(180deg,rgba(192,200,216,0.18) 0%,rgba(192,200,216,0.03) 100%);
+  border:2px solid rgba(192,200,216,0.3);
+}
+.pod-bar.g3{
+  width:130px;height:115px;font-size:52px;color:#CD7F32;
+  background:linear-gradient(180deg,rgba(205,127,50,0.18) 0%,rgba(205,127,50,0.03) 100%);
+  border:2px solid rgba(205,127,50,0.3);
+}
+
+/* REST RANK TABLE */
+.rest-table{
+  width:100%;max-width:700px;
+  margin-top:10px;
+}
+.rest-row{
+  display:flex;align-items:center;gap:16px;
+  padding:10px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  transition:background .2s;
+}
+.rest-pos{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#4A5278;width:32px;}
+.rest-name{flex:1;font-size:20px;font-weight:700;letter-spacing:1px;}
+.rest-pts{font-family:monospace;font-size:18px;font-weight:700;color:#E8001C;}
+
+/* GRÁFICO */
+.chart-wrap{
+  display:flex;flex-direction:column;width:100%;flex:1;padding:10px 0;
+}
+.chart-title{
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;
+  text-align:center;color:#8A94B0;margin-bottom:16px;
+}
+.chart-title em{color:#E8001C;font-style:normal;}
+.chart-area{
+  flex:1;display:flex;align-items:flex-end;gap:14px;
+  padding:0 20px;
+  height:380px;
+}
+.bar-col{
+  display:flex;flex-direction:column;align-items:center;
+  gap:6px;flex:1;justify-content:flex-end;
+}
+.bar-fill{
+  width:100%;border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg,#E8001C 0%,rgba(232,0,28,0.35) 100%);
+  min-height:6px;
+  position:relative;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding-top:8px;
+}
+.bar-fill.top1{background:linear-gradient(180deg,#FFD700 0%,rgba(255,215,0,0.35) 100%);}
+.bar-fill.top2{background:linear-gradient(180deg,#C0C8D8 0%,rgba(192,200,216,0.35) 100%);}
+.bar-fill.top3{background:linear-gradient(180deg,#CD7F32 0%,rgba(205,127,50,0.35) 100%);}
+.bar-val{
+  font-family:monospace;font-size:13px;font-weight:700;
+  color:rgba(255,255,255,0.9);
+}
+.bar-name{font-size:14px;font-weight:700;color:#8A94B0;letter-spacing:1px;text-align:center;}
+.bar-first{color:#FFD700;}
+.bar-second{color:#C0C8D8;}
+.bar-third{color:#CD7F32;}
+
+/* PROGRESS BAR AT BOTTOM */
+.prog-bar{
+  height:4px;background:rgba(255,255,255,0.08);
+  flex-shrink:0;
+}
+.prog-fill{
+  height:100%;background:#E8001C;
+  transition:width linear;
+}
+
+/* TICKER */
+.ticker{
+  background:rgba(10,31,92,0.8);
+  border-top:1px solid rgba(232,0,28,0.3);
+  padding:10px 48px;
+  display:flex;align-items:center;gap:16px;
+  flex-shrink:0;
+}
+.ticker-label{
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;
+  color:#E8001C;white-space:nowrap;
+}
+.ticker-scroll{
+  flex:1;overflow:hidden;white-space:nowrap;
+  font-size:14px;font-weight:700;color:#8A94B0;letter-spacing:1px;
+  animation:scroll 30s linear infinite;
+}
+@keyframes scroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+/* TRANSITION */
+.slide{opacity:0;transform:translateX(40px);transition:opacity .6s,transform .6s;}
+.slide.active{opacity:1;transform:translateX(0);}
+
+/* PULSE */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.live-dot{
+  width:10px;height:10px;border-radius:50%;background:#E8001C;
+  display:inline-block;margin-right:8px;
+  animation:pulse 1.5s ease-in-out infinite;
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-logo">
+      <div class="xi">✕</div>
+      <div>
+        <h1>MANUTENÇÃO <em>CHAMPIONS</em></h1>
+        <div class="hdr-sub">Makro Engenharia — Planejamento e Controle da Manutenção</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-time" id="clock"></div>
+      <div class="hdr-date" id="datex"></div>
+    </div>
+  </div>
+
+  <!-- SLIDE DOTS -->
+  <div class="slide-bar" id="dots"></div>
+
+  <!-- SLIDE LABEL -->
+  <div class="slide-label" id="slide-label"></div>
+
+  <!-- MAIN -->
+  <div class="main" id="main-area"></div>
+
+  <!-- PROGRESS -->
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <span class="ticker-label"><span class="live-dot"></span>PCM</span>
+    <div class="ticker-scroll" id="ticker-txt"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── SUPABASE ──
+var SUPA_URL = "https://ywpquramprdaoakrjvis.supabase.co";
+var SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3cHF1cmFtcHJkYW9ha3JqdmlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MTQ4NjAsImV4cCI6MjA5ODE5MDg2MH0.aAxS9b9PuxI7cUb_QuAWr-r-1k41PuQ34esji91GYYI";
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── DADOS ──
+var USERS={p1:"Carlos Mendes",p2:"Rafael Souza",p3:"Diego Lima",p4:"Thiago Alves",p5:"Lucas Costa",p6:"André Nunes",p7:"Fábio Rocha"};
+var PLANNERS=["p1","p2","p3","p4","p5","p6","p7"];
+var ALL_RECS = [];
+
+// ── HELPERS DE DATA ──
+function wkS(d){var dt=new Date(d);dt.setDate(dt.getDate()-dt.getDay());dt.setHours(0,0,0,0);return dt;}
+function moS(d){var dt=new Date(d);dt.setDate(1);dt.setHours(0,0,0,0);return dt;}
+function yrS(d){var dt=new Date(d);dt.setMonth(0,1);dt.setHours(0,0,0,0);return dt;}
+
+function ptsFor(uid, period){
+  var now=new Date();
+  var start=period==="week"?wkS(now):period==="month"?moS(now):yrS(now);
+  var total=0;
+  ALL_RECS.forEach(function(r){
+    if(r.usuario_id===uid&&r.status!=="rejected"&&new Date(r.data)>=start) total+=r.pontos;
+  });
+  return total;
+}
+
+function getRank(period){
+  return PLANNERS.map(function(uid){return{uid:uid,name:USERS[uid],pts:ptsFor(uid,period)};})
+    .sort(function(a,b){return b.pts-a.pts;});
+}
+
+function ini(name){return name.split(" ").map(function(n){return n[0];}).join("").slice(0,2);}
+function first(name){return name.split(" ")[0];}
+
+// ── CARREGAR DADOS DO SUPABASE ──
+async function loadRecs(){
+  var res = await sb.from("registros").select("*");
+  if(!res.error) ALL_RECS = res.data||[];
+}
+
+// ── SLIDES CONFIG ──
+var SLIDES = [
+  {id:"s-week",  label:"RANKING <em>SEMANAL</em>",  period:"week",  type:"podium"},
+  {id:"s-month", label:"RANKING <em>MENSAL</em>",   period:"month", type:"podium"},
+  {id:"s-year",  label:"RANKING <em>ANUAL</em>",    period:"year",  type:"podium"},
+  {id:"s-chart", label:"PONTUAÇÃO <em>DO TIME</em>", period:"month", type:"chart"},
+];
+
+var DURATION = 8000; // ms per slide
+var curSlide = 0;
+var progTimer = null;
+var slideTimer = null;
+
+// ── BUILD HTML ──
+function buildSlides(){
+  var dots = document.getElementById("dots");
+  var main = document.getElementById("main-area");
+  dots.innerHTML = "";
+  main.innerHTML = "";
+
+  SLIDES.forEach(function(s, i){
+    // dot
+    var dot = document.createElement("div");
+    dot.className = "slide-dot";
+    dot.id = "dot-"+i;
+    dots.appendChild(dot);
+
+    // slide
+    var div = document.createElement("div");
+    div.className = "slide";
+    div.id = s.id;
+    if(s.type === "podium") div.innerHTML = buildPodium(s.period);
+    else div.innerHTML = buildChart();
+    main.appendChild(div);
+  });
+}
+
+function buildPodium(period){
+  var rank = getRank(period);
+  var t1=rank[0], t2=rank[1], t3=rank[2], rest=rank.slice(3);
+
+  var html = '<div class="podium-wrap">';
+
+  // 2nd
+  if(t2) html +=
+    '<div class="pod" style="margin-bottom:0">'+
+      '<div class="pod-avatar g2">'+ini(t2.name)+'</div>'+
+      '<div class="pod-name g2">'+first(t2.name)+'</div>'+
+      '<div class="pod-pts g2">'+t2.pts+' pts</div>'+
+      '<div class="pod-bar g2">2</div>'+
+    '</div>';
+
+  // 1st
+  if(t1) html +=
+    '<div class="pod" style="margin-bottom:0">'+
+      '<div class="pod-avatar g1">'+
+        '<span class="pod-crown">👑</span>'+
+        ini(t1.name)+
+      '</div>'+
+      '<div class="pod-name g1">'+t1.name+'</div>'+
+      '<div class="pod-pts g1">'+t1.pts+' pts</div>'+
+      '<div class="pod-bar g1">1</div>'+
+    '</div>';
+
+  // 3rd
+  if(t3) html +=
+    '<div class="pod" style="margin-bottom:0">'+
+      '<div class="pod-avatar g3">'+ini(t3.name)+'</div>'+
+      '<div class="pod-name g3">'+first(t3.name)+'</div>'+
+      '<div class="pod-pts g3">'+t3.pts+' pts</div>'+
+      '<div class="pod-bar g3">3</div>'+
+    '</div>';
+
+  html += '</div>';
+
+  // rest
+  if(rest.length){
+    html += '<div class="rest-table">';
+    rest.forEach(function(u,i){
+      html += '<div class="rest-row">'+
+        '<div class="rest-pos">'+(i+4)+'</div>'+
+        '<div class="rest-name">'+u.name+'</div>'+
+        '<div class="rest-pts">'+u.pts+' pts</div>'+
+      '</div>';
+    });
+    html += '</div>';
+  }
+
+  return html;
+}
+
+function buildChart(){
+  var rank = getRank("month");
+  var max = Math.max.apply(null, rank.map(function(r){return r.pts;}));
+  var maxH = 340; // max bar height in px
+
+  var html = '<div class="chart-wrap">'+
+    '<div class="chart-area">';
+
+  rank.forEach(function(u, i){
+    var h = Math.max(Math.round(u.pts / max * maxH), 10);
+    var cls = i===0?"top1":i===1?"top2":i===2?"top3":"";
+    var nameCls = i===0?"bar-first":i===1?"bar-second":i===2?"bar-third":"";
+    html +=
+      '<div class="bar-col">'+
+        '<div class="bar-fill '+cls+'" style="height:'+h+'px">'+
+          '<span class="bar-val">'+u.pts+'</span>'+
+        '</div>'+
+        '<div class="bar-name '+nameCls+'">'+first(u.name)+'</div>'+
+      '</div>';
+  });
+
+  html += '</div></div>';
+  return html;
+}
+
+// ── SLIDE CONTROL ──
+function showSlide(i){
+  curSlide = i;
+  var s = SLIDES[i];
+
+  // update label
+  document.getElementById("slide-label").innerHTML = s.label;
+
+  // update dots
+  document.querySelectorAll(".slide-dot").forEach(function(d,idx){
+    d.classList.toggle("active", idx===i);
+  });
+
+  // hide all slides
+  document.querySelectorAll(".slide").forEach(function(el){
+    el.classList.remove("active");
+  });
+
+  // show current
+  setTimeout(function(){
+    document.getElementById(s.id).classList.add("active");
+  }, 50);
+
+  // progress bar
+  startProgress();
+}
+
+function nextSlide(){
+  showSlide((curSlide+1) % SLIDES.length);
+}
+
+function startProgress(){
+  var fill = document.getElementById("prog-fill");
+  fill.style.transition = "none";
+  fill.style.width = "0%";
+  clearTimeout(progTimer);
+  clearTimeout(slideTimer);
+
+  setTimeout(function(){
+    fill.style.transition = "width "+DURATION+"ms linear";
+    fill.style.width = "100%";
+  }, 50);
+
+  slideTimer = setTimeout(nextSlide, DURATION);
+}
+
+// ── CLOCK ──
+function updateClock(){
+  var now = new Date();
+  var h = String(now.getHours()).padStart(2,"0");
+  var m = String(now.getMinutes()).padStart(2,"0");
+  var s = String(now.getSeconds()).padStart(2,"0");
+  document.getElementById("clock").textContent = h+":"+m+":"+s;
+
+  var dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+  var meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  document.getElementById("datex").textContent =
+    dias[now.getDay()]+" · "+now.getDate()+" "+meses[now.getMonth()]+" "+now.getFullYear();
+}
+
+// ── TICKER ──
+function buildTicker(){
+  var week = getRank("week");
+  var month = getRank("month");
+  var txt =
+    "🏆 SEMANAL: 1º "+week[0].name+" ("+week[0].pts+"pts)  |  "+
+    "2º "+week[1].name+" ("+week[1].pts+"pts)  |  "+
+    "3º "+week[2].name+" ("+week[2].pts+"pts)  ·····  "+
+    "📅 MENSAL: 1º "+month[0].name+" ("+month[0].pts+"pts)  |  "+
+    "2º "+month[1].name+" ("+month[1].pts+"pts)  |  "+
+    "3º "+month[2].name+" ("+month[2].pts+"pts)  ·····  "+
+    "⚡ MANUTENÇÃO CHAMPIONS — Makro Engenharia PCM  ·····  ";
+  document.getElementById("ticker-txt").textContent = txt;
+}
+
+// ── INIT ──
+async function init(){
+  // Mostra loading
+  document.getElementById("slide-label").textContent = "Carregando dados...";
+  await loadRecs();
+  buildSlides();
+  buildTicker();
+  updateClock();
+  setInterval(updateClock, 1000);
+  showSlide(0);
+  // Atualiza dados a cada 60 segundos automaticamente
+  setInterval(async function(){
+    await loadRecs();
+    buildSlides();
+    buildTicker();
+  }, 60000);
+}
+init();
+</script>
+</body>
+</html>
